@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * @file
+ * Contains automigrate_plugin.module
+ migrate.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\node\Entity\Node;
+use Drupal\views\Plugin\views\query\QueryPluginBase;
+use Drupal\Core\Database\Database;
+use Drupal\Core\Database\Query\Condition;
+use Drupal\Core\Queue\QueueInterface;
+
+/**
+ * Implements hook_help().
+ */
+function automigrate_plugin_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the automigrate_plugin module.
+    case 'help.page.automigrate_plugin':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Migrate data details from CSV.') . '</p>';
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function automigrate_plugin_cron() {
+  // Calling Custom Queue worker Plugin
+	$data = '';
+  $queue = \Drupal::queue('migrations_sync');
+  $queue->createQueue();
+  $queue->createItem($data);
+}

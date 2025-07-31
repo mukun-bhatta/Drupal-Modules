@@ -1,0 +1,109 @@
+id: auto_migration
+label: Import auto_migration
+migration_group: default
+
+source:
+  plugin: 'csv'
+  # Full path to the file.
+  path: 'path/data.csv'
+  # Column delimiter. Comma (,) by default.
+  delimiter: ','
+  # Field enclosure. Double quotation marks (") by default.
+  enclosure: '"'
+  # The row to be used as the CSV header (indexed from 0), 
+  # or null if there is no header row.
+  header_offset: 0
+  # The column(s) to use as a key. Each column specified will 
+  # create an index in the migration table and too many columns 
+  # may throw an index size error.
+  ids:
+    - id
+  # Here we identify the columns of interest in the source file. 
+  # Each numeric key is the 0-based index of the column. 
+  # For each column, the key below is the field name assigned to 
+  # the data on import, to be used in field mappings below. 
+  # The label value is a user-friendly string for display by the 
+  # migration UI.
+  fields:
+    0:
+      name: id
+      label: 'Unique ID'
+    1:
+      name: active
+      label: 'Active'
+    2:
+      name: first_name
+      label: 'First Name'
+    3:
+      name: last_name
+      label: 'Last Name'
+    4:
+      name: job_title
+      label: 'Job Title'
+    5:
+      name: mobile_number
+      label: 'Mobile Number'
+    6:
+      name: email
+      label: 'Email Address'
+    7:
+      name: last_updated
+      label: 'Last Updated'
+process:
+  nid: 
+    plugin: map_id
+    source: id
+  title: 
+    plugin: concat
+    source:
+      - first_name
+      - last_name
+    delimiter: ' '
+  field_auto_migration_unique_id: id
+  field_auto_migration_first_name: first_name
+  field_auto_migration_last_name: last_name
+  field_mobile: 
+    plugin: validate_phone
+    source: phone_number
+    source: mobile_number
+  field_auto_migration_email_address: 
+    plugin: validate_email
+    source: email
+  field__job_title:
+    -
+      plugin: custom_explode
+      source: job_title
+      delimiter: ' + '
+    -
+      plugin: entity_generate
+      ignore_case: true
+      value_key: name
+      entity_type: taxonomy_term
+      bundle_key: vid
+      bundle: job_title
+  uid:
+    plugin: default_value
+    default_value: 1
+  created:
+    plugin: date
+    source: last_updated
+  status:
+    plugin: custom_status
+    source:
+      - id
+      - first_name
+      - last_name
+      - email
+  type:
+    plugin: default_value
+    default_value: auto_migration
+destination:
+  plugin: entity:node
+  overwrite_properties:
+    - title
+    - field_auto_migration_first_name
+    - field_auto_migration_last_name
+    - field_auto_migration_email_address‎
+    - field_mobile
+    - field__job_title
+    - status

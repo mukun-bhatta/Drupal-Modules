@@ -1,0 +1,9 @@
+name: 'Auto Migrate Plugin'
+type: module
+description: 'Migration of data from CSV.'
+core_version_requirement: ^8 || ^9 || ^10
+package: 'custom'
+dependencies:
+  - migrate
+  - migrate_plus
+  - migrate_tools
